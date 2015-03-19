@@ -1,2 +1,3 @@
-# ansible-role-mongodb
-Ansible role for MongoDB
+# Ansible Role: MongoDB
+
+Installs MongoDB on RHEL/CentOS servers.

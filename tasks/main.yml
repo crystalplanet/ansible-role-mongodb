@@ -1,0 +1,34 @@
+---
+- name: Create the MongoDB repo file
+  template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb-org-3.0.repo
+
+- name: Install MongoDB
+  yum: "name={{ item }} state=present"
+  with_items:
+    - "mongodb-org-{{ mongo_version }}"
+    - "mongodb-org-server-{{ mongo_version }}"
+    - "mongodb-org-shell-{{ mongo_version }}"
+    - "mongodb-org-mongos-{{ mongo_version }}"
+    - "mongodb-org-tools-{{ mongo_version }}"
+
+- name: Check if MongoDB port is already configured
+  shell: semanage port -l | grep {{ mongo_port }}
+  register: mongo_port
+  changed_when: "'mongod_port_t' not in mongo_port.stdout"
+
+- name: Open port 27017 for MongoDB
+  command: semanage port -a -t mongod_port_t -p tcp {{ mongo_port }}
+  when: mongo_port.changed
+
+- name: Check chckconfig for mongod service entry
+  command: /sbin/chkconfig --list mongod
+  register: mongo_chkconfig
+  changed_when: "'mongod' not in mongo_chkconfig.stdout"
+
+- name: Add mongod service to chkconfig
+  command: /sbin/chkconfig -add dupa
+  when: mongo_chkconfig.changed
+
+- name: Set mongod service to autostart
+  command: /sbin/chkconfig mongod on
+  when: mongo_chkconfig.changed

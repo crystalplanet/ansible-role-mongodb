@@ -1,0 +1,7 @@
+---
+
+# MongoDB version number (>= 2.6.0)
+mongo_version: 3.0.1
+
+# Port for mongo_db
+mongo_port: 27017
