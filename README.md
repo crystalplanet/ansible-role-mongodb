@@ -4,6 +4,9 @@ Installs MongoDB on RHEL/CentOS servers.
 
 ## Requirements
 
+```yaml
+policycoreutils-python
+```
 
 ## Role Variables
 
