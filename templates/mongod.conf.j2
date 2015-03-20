@@ -1,0 +1,15 @@
+# mongod.conf
+
+bind_ip={{ mongo_net.ip }}
+port={{ mongo_net.port }}
+
+logpath={{ mongo_logs.path }}
+logappend={{ mongo_logs.append }}
+
+dbpath={{ mongo_db.path }}
+
+# fork and run in background
+fork=true
+
+# location of pidfile
+pidfilepath=/var/run/mongodb/mongod.pid
