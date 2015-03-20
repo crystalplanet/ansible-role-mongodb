@@ -1,7 +1,17 @@
 ---
-
-# MongoDB version number (>= 2.6.0)
+# Version to be installed, must be >= 2.6
 mongo_version: 3.0.1
 
-# Port for mongo_db
-mongo_port: 27017
+# Network
+mongo_net:
+    ip: 127.0.0.1
+    port: 27017
+
+# Logs
+mongo_logs:
+    path: /var/log/mongodb/mongod.log
+    append: true
+
+# Database
+mongo_db:
+    path: /var/lib/mongo

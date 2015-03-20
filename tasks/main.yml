@@ -1,9 +1,10 @@
 ---
 - name: Create the MongoDB repo file
-  template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb-org-3.0.repo
+  copy: src=mongodb.repo dest=/etc/yum.repos.d/mongodb-org-3.0.repo
 
 - name: Install MongoDB
   yum: "name={{ item }} state=present"
+  notify: restart mongod
   with_items:
     - "mongodb-org-{{ mongo_version }}"
     - "mongodb-org-server-{{ mongo_version }}"
@@ -11,13 +12,17 @@
     - "mongodb-org-mongos-{{ mongo_version }}"
     - "mongodb-org-tools-{{ mongo_version }}"
 
+- name: Copy the configuration file
+  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+  notify: restart mongod
+
 - name: Check if MongoDB port is already configured
-  shell: semanage port -l | grep {{ mongo_port }}
+  shell: semanage port -l | grep {{ mongo_net.port }}
   register: mongo_port
-  changed_when: "'mongod_port_t' not in mongo_port.stdout"
+  changed_when: "'mongod_port_t' not in mongo_port.stdout or ' {{ mongo_net.port }},' not in mongo_port.stdout"
 
 - name: Open port 27017 for MongoDB
-  command: semanage port -a -t mongod_port_t -p tcp {{ mongo_port }}
+  command: semanage port -a -t mongod_port_t -p tcp {{ mongo_net.port }}
   when: mongo_port.changed
 
 - name: Check chckconfig for mongod service entry
@@ -26,9 +31,9 @@
   changed_when: "'mongod' not in mongo_chkconfig.stdout"
 
 - name: Add mongod service to chkconfig
-  command: /sbin/chkconfig -add dupa
+  command: /sbin/chkconfig -add mongod
   when: mongo_chkconfig.changed
 
 - name: Set mongod service to autostart
   command: /sbin/chkconfig mongod on
-  when: mongo_chkconfig.changed
+  when: "'2:on' not in mongo_chkconfig.stdout"
