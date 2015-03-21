@@ -31,7 +31,7 @@
   changed_when: "'mongod' not in mongo_chkconfig.stdout"
 
 - name: Add mongod service to chkconfig
-  command: /sbin/chkconfig -add mongod
+  command: /sbin/chkconfig --add mongod
   when: mongo_chkconfig.changed
 
 - name: Set mongod service to autostart
