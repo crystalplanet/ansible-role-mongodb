@@ -21,19 +21,10 @@
   register: mongo_port
   changed_when: "'mongod_port_t' not in mongo_port.stdout or ' {{ mongo_net.port }},' not in mongo_port.stdout"
 
-- name: Open port 27017 for MongoDB
+- name: Open port for MongoDB
   command: semanage port -a -t mongod_port_t -p tcp {{ mongo_net.port }}
+  notify: restart mongod
   when: mongo_port.changed
 
-- name: Check chckconfig for mongod service entry
-  command: /sbin/chkconfig --list mongod
-  register: mongo_chkconfig
-  changed_when: "'mongod' not in mongo_chkconfig.stdout"
-
-- name: Add mongod service to chkconfig
-  command: /sbin/chkconfig --add mongod
-  when: mongo_chkconfig.changed
-
-- name: Set mongod service to autostart
-  command: /sbin/chkconfig mongod on
-  when: "'2:on' not in mongo_chkconfig.stdout"
+- name: Enable mongod service on startup
+  service: name=mongod enabled=yes
